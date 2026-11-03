@@ -49,16 +49,81 @@ document.querySelectorAll(".title .line").forEach(splitChars);
 
 anime.timeline({ easing: "easeOutExpo" })
   .add({
-    targets: ".title .char, .title .scramble, .title .hl",
+    targets: ".title .char, .title .hl",
     translateY: [80, 0],
     rotate: [12, 0],
     opacity: [0, 1],
     duration: 1100,
     delay: anime.stagger(30),
   })
-  .add({ targets: ".eyebrow, .sub, .hero-cta", opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(100) }, "-=800")
-  .add({ targets: ".hero-photo", opacity: [0, 1], translateY: [60, 0], rotate: [6, 0], scale: [0.9, 1], duration: 1400 }, 200)
+  .add({ targets: ".eyebrow, .tagline, .socials, .hint-text", opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(120) }, "-=800")
+  .add({ targets: ".squiggle path", strokeDashoffset: [anime.setDashoffset, 0], duration: 1000, easing: "easeInOutSine" }, "-=600")
+  .add({ targets: ".socials a", scale: [0.6, 1], opacity: [0, 1], delay: anime.stagger(80), duration: 700, easing: "easeOutBack" }, "-=700")
+  .add({ targets: ".hero-photo", opacity: [0, 1], scale: [0.4, 1], rotate: [-25, 0], duration: 1400, easing: "easeOutElastic(1, .7)" }, 200)
   .add({ targets: ".avatar", scale: [0, 1], duration: 900, easing: "easeOutElastic(1, .6)" }, 0);
+
+// the little sun spins slowly forever
+anime({ targets: ".sun", rotate: 360, duration: 12000, loop: true, easing: "linear", autoplay: !reduceMotion });
+
+// ---------- pixel clouds ----------
+// Each cloud is a tiny canvas (a few dozen pixels wide) made of random overlapping
+// circles, then scaled up with image-rendering: pixelated so it looks like pixel art.
+function makeCloud(w, h) {
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  // puffs sit along a baseline, bigger in the middle, so the cloud is wide with a flat bottom
+  const base = h * 0.72;
+  const puffs = [];
+  const n = 3 + Math.floor(Math.random() * 3);
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n;                 // 0..1 across the cloud
+    const r = h * (0.28 + 0.32 * Math.sin(Math.PI * t)) * (0.8 + Math.random() * 0.3);
+    puffs.push({ x: w * (0.12 + 0.76 * t), y: base - r * 0.35, r });
+  }
+  const inside = (x, y) => y <= base + 1 && puffs.some((p) => (x - p.x) ** 2 + (y - p.y) ** 2 < p.r ** 2);
+  const colours = { top: "#ffe2b8", body: "#f6b3c2", under: "#a78bcf" };
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (!inside(x, y)) continue;
+      let col = colours.body;
+      if (!inside(x, y - 2)) col = colours.top;        // top edge catches the sunlight
+      else if (y > base - 3) col = colours.under;      // flat underside in shadow
+      ctx.fillStyle = col;
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+  return c;
+}
+const cloudBox = document.querySelector(".clouds");
+function spawnClouds() {
+  cloudBox.innerHTML = "";
+  const count = window.innerWidth < 700 ? 4 : 7;
+  for (let i = 0; i < count; i++) {
+    const w = 36 + Math.floor(Math.random() * 34);
+    const cloud = makeCloud(w, Math.round(w * 0.38));
+    const scale = window.innerWidth < 700 ? 3 : 4 + Math.floor(Math.random() * 3);
+    cloud.className = "cloud";
+    cloud.style.width = w * scale + "px";
+    cloud.style.top = 8 + Math.random() * 45 + "%";
+    // spread clouds evenly across the width, with a bit of randomness
+    cloud.style.left = ((i + Math.random() * 0.6) / count) * 100 - 10 + "%";
+    cloudBox.appendChild(cloud);
+    if (!reduceMotion) {
+      // drift sideways and back, each cloud at its own speed
+      anime({
+        targets: cloud,
+        translateX: [0, anime.random(-160, 160)],
+        duration: anime.random(14000, 26000),
+        direction: "alternate", loop: true, easing: "easeInOutSine",
+      });
+    }
+  }
+  anime({ targets: ".cloud", opacity: [0, 0.4], delay: anime.stagger(120), duration: 1600, easing: "easeOutExpo" });
+}
+spawnClouds();
+// redraw clouds in the new colours when the theme changes
+document.querySelector(".theme-toggle").addEventListener("click", spawnClouds);
 
 // hills rise in, back layers first
 anime({ targets: ".hill", translateY: [120, 0], opacity: [0, 1], duration: 1600, delay: anime.stagger(150), easing: "easeOutExpo" });
