@@ -104,27 +104,47 @@
     <!-- PROJECTS -->
     <section id="projects" class="section">
       <h2 class="section-title reveal"><span class="mono">02</span> projects</h2>
-      <p class="muted reveal">Things I've built, pulled live from GitHub.</p>
-      <div class="filters reveal" role="tablist"></div>
+      <p class="muted reveal">A few things I'm proud of.</p>
       <div class="repo-grid"></div>
+      <a class="more-link mono reveal" href="https://github.com/mqz0211?tab=repositories" target="_blank" rel="noopener">see everything on github →</a>
     </section>
 
     <!-- PLAYGROUND -->
     <section id="playground" class="section">
       <h2 class="section-title reveal"><span class="mono">03</span> playground</h2>
-      <p class="muted reveal">Some motion experiments. Try the buttons.</p>
-      <div class="play">
-        <div class="play-stage" aria-hidden="true">
-          <svg class="wave" viewBox="0 0 600 160" preserveAspectRatio="none">
-            <path class="wave-path" d="M0 80 Q 75 10 150 80 T 300 80 T 450 80 T 600 80" fill="none" stroke="currentColor" stroke-width="3"/>
-          </svg>
-          <div class="blocks"></div>
+      <p class="muted reveal">Little toys I made with anime.js. Go on, play.</p>
+
+      <div class="play-grid">
+        <!-- 1. mini game -->
+        <div class="toy toy-game reveal">
+          <div class="toy-head">
+            <h3>catch the sun</h3>
+            <span class="mono toy-score">score <b class="score">0</b> · best <b class="best">0</b></span>
+          </div>
+          <div class="game-stage">
+            <div class="timer-bar"></div>
+            <button class="sun-target" aria-label="catch the sun">☀</button>
+            <div class="game-overlay">
+              <p class="game-msg">Click the sun as many times as you can in 20 seconds.</p>
+              <button class="btn small game-start">start</button>
+            </div>
+          </div>
         </div>
-        <div class="play-controls">
-          <button class="btn small" data-anim="wave">wave</button>
-          <button class="btn small" data-anim="spin">spin</button>
-          <button class="btn small" data-anim="shuffle">shuffle</button>
-          <button class="btn small" data-anim="draw">draw</button>
+
+        <!-- 2. type & explode -->
+        <div class="toy toy-type reveal">
+          <div class="toy-head"><h3>type &amp; explode</h3></div>
+          <div class="type-stage"><div class="type-out" aria-live="polite"></div></div>
+          <div class="type-controls">
+            <input class="type-in" type="text" maxlength="14" placeholder="type your name…" aria-label="text to animate" />
+            <button class="btn small type-boom">boom</button>
+          </div>
+        </div>
+
+        <!-- 3. spark pad -->
+        <div class="toy toy-spark reveal">
+          <div class="toy-head"><h3>spark pad</h3><span class="mono toy-score">click or drag</span></div>
+          <div class="spark-stage"><span class="spark-hint mono">✦ click me ✦</span></div>
         </div>
       </div>
     </section>
