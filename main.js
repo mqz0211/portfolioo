@@ -56,7 +56,7 @@ anime.timeline({ easing: "easeOutExpo" })
     duration: 1100,
     delay: anime.stagger(30),
   })
-  .add({ targets: ".eyebrow, .tagline, .socials, .hint-text", opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(120) }, "-=800")
+  .add({ targets: ".eyebrow, .tagline, .socials", opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(120) }, "-=800")
   .add({ targets: ".squiggle path", strokeDashoffset: [anime.setDashoffset, 0], duration: 1000, easing: "easeInOutSine" }, "-=600")
   .add({ targets: ".socials a", scale: [0.6, 1], opacity: [0, 1], delay: anime.stagger(80), duration: 700, easing: "easeOutBack" }, "-=700")
   .add({ targets: ".hero-photo", opacity: [0, 1], scale: [0.4, 1], rotate: [-25, 0], duration: 1400, easing: "easeOutElastic(1, .7)" }, 200)
@@ -105,7 +105,9 @@ function spawnClouds() {
     const scale = window.innerWidth < 700 ? 3 : 4 + Math.floor(Math.random() * 3);
     cloud.className = "cloud";
     cloud.style.width = w * scale + "px";
-    cloud.style.top = 8 + Math.random() * 45 + "%";
+    // keep clouds near the top, or off to the sides, so they never sit behind the name
+    const nearEdge = i === 0 || i === count - 1;
+    cloud.style.top = (nearEdge ? 10 + Math.random() * 40 : 4 + Math.random() * 10) + "%";
     // spread clouds evenly across the width, with a bit of randomness
     cloud.style.left = ((i + Math.random() * 0.6) / count) * 100 - 10 + "%";
     cloudBox.appendChild(cloud);
@@ -119,7 +121,7 @@ function spawnClouds() {
       });
     }
   }
-  anime({ targets: ".cloud", opacity: [0, 0.4], delay: anime.stagger(120), duration: 1600, easing: "easeOutExpo" });
+  anime({ targets: ".cloud", opacity: [0, 0.3], delay: anime.stagger(120), duration: 1600, easing: "easeOutExpo" });
 }
 spawnClouds();
 // redraw clouds in the new colours when the theme changes
@@ -265,12 +267,21 @@ async function countUp() {
 }
 const profileReady = loadProfile();
 
+// Simple line icons for the project cards
+const svgIcon = (d) => `<svg viewBox="0 0 24 24" width="56" height="56" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
+const ICON = {
+  history: svgIcon("M3 12a9 9 0 1 0 2.6-6.4M3 4v5h5M12 7v5l3 2"),
+  clean: svgIcon("M9 3h6v3H9zM7 4.5H5V21h14V4.5h-2M8.5 13.5l2.5 2.5 4.5-4.5"),
+  terminal: svgIcon("M3 5h18v14H3zM7 10l3 2-3 2M12.5 15H17"),
+  flag: svgIcon("M5 21V4M5 4h13l-2.5 4L18 12H5"),
+};
+
 // Hand-picked projects. Stars + website links are filled in live from GitHub.
 const FEATURED = [
   {
     repo: "Claude-Checkpoint-Manager-CCM",
     title: "Claude Checkpoint Manager",
-    emoji: "⏪",
+    icon: ICON.history,
     tagline: "An undo button for AI coding sessions.",
     desc: "A CLI that saves your code and your AI session context together, shows a clean timeline, and rolls back instantly without touching your real git history.",
     tags: ["Node.js", "CLI", "Git"],
@@ -280,7 +291,7 @@ const FEATURED = [
   {
     repo: "tidypaste",
     title: "TidyPaste",
-    emoji: "🧹",
+    icon: ICON.clean,
     tagline: "Paste messy text, get it back clean.",
     desc: "Strips tracking junk from links, fixes broken PDF line breaks and copies the clean result for you. Runs fully in your browser.",
     tags: ["JavaScript", "Web app", "Privacy"],
@@ -289,7 +300,7 @@ const FEATURED = [
   {
     repo: "termux",
     title: "Termux Field Guide",
-    emoji: "📱",
+    icon: ICON.terminal,
     tagline: "Turn your phone into a Linux lab.",
     desc: "A guide to 100+ Linux commands and tools on Android with Termux. No PC needed. My most-starred repo.",
     tags: ["Linux", "Android", "Guide"],
@@ -298,7 +309,7 @@ const FEATURED = [
   {
     repo: "RBLXRacer",
     title: "RBLXRacer",
-    emoji: "🏎️",
+    icon: ICON.flag,
     tagline: "Open-source Roblox racing framework.",
     desc: "A framework for building fast, customisable multiplayer racing games in Roblox Studio with Lua.",
     tags: ["Lua", "Roblox", "Game dev"],
@@ -319,8 +330,8 @@ function renderProjects(live = {}) {
     return `
     <article class="repo${p.featured ? " featured" : ""}">
       <div class="repo-thumb" style="background:${p.gradient}">
-        ${stars ? `<span class="badge mono">★ ${stars}</span>` : ""}
-        <span class="emoji">${p.emoji}</span>
+        ${stars ? `<span class="badge mono">${stars} stars</span>` : ""}
+        <span class="icon">${p.icon}</span>
       </div>
       <div class="repo-body">
         <h3>${escapeHTML(p.title)}</h3>
@@ -328,8 +339,8 @@ function renderProjects(live = {}) {
         <p>${escapeHTML(p.desc)}</p>
         <div class="tags mono">${p.tags.map((t) => `<span>${escapeHTML(t)}</span>`).join("")}</div>
         <div class="repo-buttons">
-          <a class="btn ghost" href="${url}" target="_blank" rel="noopener">github</a>
-          ${info.homepage ? `<a class="btn" href="${escapeHTML(info.homepage)}" target="_blank" rel="noopener">try it ↗</a>` : ""}
+          <a class="btn ghost" href="${url}" target="_blank" rel="noopener">GitHub</a>
+          ${info.homepage ? `<a class="btn" href="${escapeHTML(info.homepage)}" target="_blank" rel="noopener">Live demo</a>` : ""}
         </div>
       </div>
     </article>`;
@@ -347,7 +358,7 @@ const projIO = new IntersectionObserver((entries) => {
     // clear the inline transform afterwards so the CSS hover lift still works
     complete: () => document.querySelectorAll(".repo").forEach((r) => (r.style.transform = "")),
   });
-  anime({ targets: ".repo .emoji", scale: [0, 1], rotate: [-40, 0], delay: anime.stagger(110, { start: 300 }), duration: 1000, easing: "easeOutElastic(1, .5)" });
+  anime({ targets: ".repo .icon", scale: [0.6, 1], opacity: [0, 1], delay: anime.stagger(110, { start: 300 }), duration: 1000, easing: "easeOutElastic(1, .5)" });
 }, { threshold: 0.1 });
 document.querySelectorAll(".repo").forEach((r) => (r.style.opacity = 0));
 projIO.observe(document.querySelector(".repo-grid"));
@@ -436,8 +447,8 @@ function endGame() {
     best = score; bestEl.textContent = best;
     try { localStorage.setItem("sunBest", best); } catch (e) {}
   }
-  msgEl.textContent = newBest ? `New best: ${score}! 🌅` : `You caught ${score} suns. Best is ${best}.`;
-  document.querySelector(".game-start").textContent = "play again";
+  msgEl.textContent = newBest ? `New best score: ${score}` : `Score: ${score}. Best: ${best}.`;
+  document.querySelector(".game-start").textContent = "Play again";
   overlay.style.display = "";
   anime({ targets: overlay, opacity: [0, 1], duration: 400, easing: "linear" });
   anime({ targets: sun, left: "50%", top: "50%", duration: 600, easing: "easeOutExpo", complete: () => sunFloat.play() });
@@ -508,21 +519,6 @@ pad.addEventListener("pointermove", (e) => {
 });
 window.addEventListener("pointerup", () => (dragging = false));
 
-// ---------- 9. Toast + copy username ----------
-const toast = document.querySelector(".toast");
-function showToast(msg) {
-  toast.textContent = msg;
-  anime.timeline({ targets: toast })
-    .add({ translateY: [120, 0], translateX: "-50%", duration: 500, easing: "easeOutBack" })
-    .add({ translateY: 120, duration: 400, easing: "easeInQuad", delay: 1600 });
-}
-document.querySelector(".copy-btn").addEventListener("click", async (e) => {
-  try {
-    await navigator.clipboard.writeText(e.currentTarget.dataset.copy);
-    showToast("copied mqz0211 ✓");
-  } catch { showToast("couldn't copy :("); }
-});
-
 // ---------- 10. Konami code easter egg ----------
 const code = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 let pos = 0;
@@ -531,7 +527,6 @@ window.addEventListener("keydown", (e) => {
   if (pos === code.length) { pos = 0; confetti(); }
 });
 function confetti() {
-  showToast("🍦 you found the secret! enjoy the ice cream");
   const pieces = [];
   for (let i = 0; i < 80; i++) {
     const p = document.createElement("div");

@@ -55,7 +55,7 @@
                   <path d="M16 2v4M16 26v4M2 16h4M26 16h4M6 6l2.8 2.8M23.2 23.2 26 26M6 26l2.8-2.8M23.2 8.8 26 6"/>
                 </g>
               </svg>
-              <span>I build <span class="scramble" data-words="tools,scripts,websites,weird stuff">tools</span></span>
+              <span>I build <span class="scramble" data-words="tools,web apps,CLIs,games">tools</span></span>
               <svg class="squiggle" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true">
                 <path d="M2 6 Q 12 0 22 6 T 42 6 T 62 6 T 82 6 T 102 6 T 122 6 T 142 6 T 162 6 T 182 6 T 202 6 T 222 6 T 242 6 T 262 6 T 282 6 T 298 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
               </svg>
@@ -70,15 +70,17 @@
           </a>
           <a href="#projects">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 7h7l2 2h9v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/></svg>
-            projects
+            Projects
           </a>
           <a href="#playground">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>
-            playground
+            Playground
           </a>
-          <!-- add more links here, e.g. Instagram / Hack Club Slack -->
+          <a href="https://www.kaggle.com/archaeopetryxzz" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M7 3v18M7 14l9-10M10.5 10.5 17 21"/></svg>
+            Kaggle
+          </a>
         </div>
-        <p class="hint-text mono">psst… click the sky</p>
       </div>
     </section>
 
@@ -87,8 +89,8 @@
       <h2 class="section-title reveal"><span class="mono">01</span> about</h2>
       <div class="about-wrap">
         <div class="about-text reveal">
-          <p>I'm a teen coder who likes taking things apart to see how they work and then building my own version. Most of my projects start as "I wonder if I can make this" and end up on GitHub.</p>
-          <p>I mess around with CLI tools, browser extensions, Termux setups, Roblox and anything else that catches my interest.</p>
+          <p>I'm a student developer who builds practical software: command-line tools, browser apps and game frameworks. I like understanding how things work under the hood and turning that into tools other people can actually use.</p>
+          <p>Right now I'm exploring developer tooling, AI-assisted workflows and data science on <a href="https://www.kaggle.com/archaeopetryxzz" target="_blank" rel="noopener">Kaggle</a>.</p>
         </div>
         <div class="stats reveal">
           <div class="stat"><span class="num" data-key="public_repos">0</span><span class="label mono">public repos</span></div>
@@ -104,47 +106,47 @@
     <!-- PROJECTS -->
     <section id="projects" class="section">
       <h2 class="section-title reveal"><span class="mono">02</span> projects</h2>
-      <p class="muted reveal">A few things I'm proud of.</p>
+      <p class="muted reveal">Selected work.</p>
       <div class="repo-grid"></div>
-      <a class="more-link mono reveal" href="https://github.com/mqz0211?tab=repositories" target="_blank" rel="noopener">see everything on github →</a>
+      <a class="more-link mono reveal" href="https://github.com/mqz0211?tab=repositories" target="_blank" rel="noopener">View all repositories on GitHub</a>
     </section>
 
     <!-- PLAYGROUND -->
     <section id="playground" class="section">
       <h2 class="section-title reveal"><span class="mono">03</span> playground</h2>
-      <p class="muted reveal">Little toys I made with anime.js. Go on, play.</p>
+      <p class="muted reveal">Interactive experiments built with anime.js.</p>
 
       <div class="play-grid">
         <!-- 1. mini game -->
         <div class="toy toy-game reveal">
           <div class="toy-head">
-            <h3>catch the sun</h3>
+            <h3>Catch the Sun</h3>
             <span class="mono toy-score">score <b class="score">0</b> · best <b class="best">0</b></span>
           </div>
           <div class="game-stage">
             <div class="timer-bar"></div>
-            <button class="sun-target" aria-label="catch the sun">☀</button>
+            <button class="sun-target" aria-label="Catch the sun"></button>
             <div class="game-overlay">
               <p class="game-msg">Click the sun as many times as you can in 20 seconds.</p>
-              <button class="btn small game-start">start</button>
+              <button class="btn small game-start">Start</button>
             </div>
           </div>
         </div>
 
         <!-- 2. type & explode -->
         <div class="toy toy-type reveal">
-          <div class="toy-head"><h3>type &amp; explode</h3></div>
+          <div class="toy-head"><h3>Type &amp; Explode</h3></div>
           <div class="type-stage"><div class="type-out" aria-live="polite"></div></div>
           <div class="type-controls">
-            <input class="type-in" type="text" maxlength="14" placeholder="type your name…" aria-label="text to animate" />
-            <button class="btn small type-boom">boom</button>
+            <input class="type-in" type="text" maxlength="14" placeholder="Type something" aria-label="text to animate" />
+            <button class="btn small type-boom">Explode</button>
           </div>
         </div>
 
         <!-- 3. spark pad -->
         <div class="toy toy-spark reveal">
-          <div class="toy-head"><h3>spark pad</h3><span class="mono toy-score">click or drag</span></div>
-          <div class="spark-stage"><span class="spark-hint mono">✦ click me ✦</span></div>
+          <div class="toy-head"><h3>Spark Pad</h3></div>
+          <div class="spark-stage"><span class="spark-hint mono">Click or drag</span></div>
         </div>
       </div>
     </section>
@@ -152,20 +154,18 @@
     <!-- CONTACT -->
     <section id="contact" class="section contact">
       <h2 class="section-title reveal"><span class="mono">04</span> contact</h2>
-      <p class="big reveal">Wanna build something together?</p>
+      <p class="big reveal">Open to collaborations, projects and new ideas.</p>
       <div class="hero-cta reveal">
-        <a class="btn" href="https://github.com/mqz0211" target="_blank" rel="noopener">github ↗</a>
-        <button class="btn ghost copy-btn" data-copy="mqz0211">copy username</button>
+        <a class="btn" href="https://github.com/mqz0211" target="_blank" rel="noopener">GitHub</a>
+        <a class="btn ghost" href="https://www.kaggle.com/archaeopetryxzz" target="_blank" rel="noopener">Kaggle</a>
       </div>
     </section>
   </main>
 
   <footer class="footer mono">
-    <span>built from scratch by mqz · made for <a href="https://swirl.hackclub.com" target="_blank" rel="noopener">Hack Club Swirl</a></span>
-    <span class="hint">psst… try ↑ ↑ ↓ ↓ ← → ← → b a</span>
+    <span>Designed and built by mqz · Made for <a href="https://swirl.hackclub.com" target="_blank" rel="noopener">Hack Club Swirl</a></span>
   </footer>
 
-  <div class="toast mono" role="status" aria-live="polite"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
   <script src="main.js"></script>
