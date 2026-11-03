@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>mqz — portfolio</title>
+  <meta name="description" content="Portfolio of mqz (mqz0211) — student developer building tools, scripts and web things." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- custom cursor -->
+  <div class="cursor" aria-hidden="true"></div>
+
+  <header class="nav">
+    <a href="#top" class="logo" aria-label="Home">
+      <svg viewBox="0 0 40 40" width="28" height="28"><path class="logo-path" d="M6 32 V10 L20 24 L34 10 V32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>mqz</span>
+    </a>
+    <nav>
+      <a href="#about">about</a>
+      <a href="#projects">projects</a>
+      <a href="#playground">playground</a>
+      <a href="#contact">contact</a>
+      <button class="theme-toggle" aria-label="Toggle light/dark mode">◐</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="hero-text">
+        <p class="eyebrow mono">// hello, world</p>
+        <h1 class="title">
+          <span class="line">I'm <span class="hl">mqz</span>.</span>
+          <span class="line">I build <span class="scramble" data-words="tools,scripts,websites,weird stuff">tools</span>.</span>
+        </h1>
+        <p class="sub">Student developer. Click anywhere on the grid ↓</p>
+        <div class="hero-cta">
+          <a class="btn" href="#projects">see my work</a>
+          <a class="btn ghost" href="https://github.com/mqz0211" target="_blank" rel="noopener">github ↗</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section">
+      <h2 class="section-title reveal"><span class="mono">01</span> about</h2>
+      <div class="about-wrap">
+        <div class="about-text reveal">
+          <p>I'm a teen coder who likes taking things apart to see how they work and then building my own version. Most of my projects start as "I wonder if I can make this" and end up on GitHub.</p>
+          <p>I mess around with CLI tools, browser extensions, Termux setups, Roblox and anything else that catches my interest.</p>
+        </div>
+        <div class="stats reveal">
+          <div class="stat"><span class="num" data-key="public_repos">0</span><span class="label mono">public repos</span></div>
+          <div class="stat"><span class="num" data-key="followers">0</span><span class="label mono">followers</span></div>
+          <div class="stat"><span class="num" data-key="years">0</span><span class="label mono">years on github</span></div>
+        </div>
+      </div>
+      <div class="skills reveal">
+        <span>JavaScript</span><span>Python</span><span>HTML/CSS</span><span>Bash</span><span>Lua</span><span>Git</span><span>Linux</span><span>Node.js</span>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="section">
+      <h2 class="section-title reveal"><span class="mono">02</span> projects</h2>
+      <p class="muted reveal">Pulled live from the GitHub API.</p>
+      <div class="filters reveal" role="tablist"></div>
+      <div class="repo-grid"></div>
+    </section>
+
+    <!-- PLAYGROUND -->
+    <section id="playground" class="section">
+      <h2 class="section-title reveal"><span class="mono">03</span> playground</h2>
+      <p class="muted reveal">Some motion experiments. Try the buttons.</p>
+      <div class="play">
+        <div class="play-stage" aria-hidden="true">
+          <svg class="wave" viewBox="0 0 600 160" preserveAspectRatio="none">
+            <path class="wave-path" d="M0 80 Q 75 10 150 80 T 300 80 T 450 80 T 600 80" fill="none" stroke="currentColor" stroke-width="3"/>
+          </svg>
+          <div class="blocks"></div>
+        </div>
+        <div class="play-controls">
+          <button class="btn small" data-anim="wave">wave</button>
+          <button class="btn small" data-anim="spin">spin</button>
+          <button class="btn small" data-anim="shuffle">shuffle</button>
+          <button class="btn small" data-anim="draw">draw</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section contact">
+      <h2 class="section-title reveal"><span class="mono">04</span> contact</h2>
+      <p class="big reveal">Wanna build something together?</p>
+      <div class="hero-cta reveal">
+        <a class="btn" href="https://github.com/mqz0211" target="_blank" rel="noopener">github ↗</a>
+        <button class="btn ghost copy-btn" data-copy="mqz0211">copy username</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer mono">
+    <span>built from scratch by mqz · made for <a href="https://swirl.hackclub.com" target="_blank" rel="noopener">Hack Club Swirl</a></span>
+    <span class="hint">psst… try ↑ ↑ ↓ ↓ ← → ← → b a</span>
+  </footer>
+
+  <div class="toast mono" role="status" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
