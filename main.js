@@ -265,129 +265,248 @@ async function countUp() {
 }
 const profileReady = loadProfile();
 
-// Fallback list if the API is rate-limited
-const FALLBACK_REPOS = [
-  "tidypaste", "Claude-Checkpoint-Manager-CCM", "zero-to-dev", "termux", "RBLXRacer",
-  "IcodeAI", "oh-my-usb", "geometry", "autotyper", "LicenseDesc",
-].map((name) => ({ name, description: "", language: null, stargazers_count: 0, html_url: `https://github.com/${GITHUB_USER}/${name}` }));
+// Hand-picked projects. Stars + website links are filled in live from GitHub.
+const FEATURED = [
+  {
+    repo: "Claude-Checkpoint-Manager-CCM",
+    title: "Claude Checkpoint Manager",
+    emoji: "⏪",
+    tagline: "An undo button for AI coding sessions.",
+    desc: "A CLI that saves your code and your AI session context together, shows a clean timeline, and rolls back instantly without touching your real git history.",
+    tags: ["Node.js", "CLI", "Git"],
+    gradient: "linear-gradient(135deg, #9b7bff, #f17fa8)",
+    featured: true,
+  },
+  {
+    repo: "tidypaste",
+    title: "TidyPaste",
+    emoji: "🧹",
+    tagline: "Paste messy text, get it back clean.",
+    desc: "Strips tracking junk from links, fixes broken PDF line breaks and copies the clean result for you. Runs fully in your browser.",
+    tags: ["JavaScript", "Web app", "Privacy"],
+    gradient: "linear-gradient(135deg, #ffc65c, #ff8a3d)",
+  },
+  {
+    repo: "termux",
+    title: "Termux Field Guide",
+    emoji: "📱",
+    tagline: "Turn your phone into a Linux lab.",
+    desc: "A guide to 100+ Linux commands and tools on Android with Termux. No PC needed. My most-starred repo.",
+    tags: ["Linux", "Android", "Guide"],
+    gradient: "linear-gradient(135deg, #2f3b66, #5ce1e6)",
+  },
+  {
+    repo: "RBLXRacer",
+    title: "RBLXRacer",
+    emoji: "🏎️",
+    tagline: "Open-source Roblox racing framework.",
+    desc: "A framework for building fast, customisable multiplayer racing games in Roblox Studio with Lua.",
+    tags: ["Lua", "Roblox", "Game dev"],
+    gradient: "linear-gradient(135deg, #ff5e5b, #ffc65c)",
+  },
+];
 
-// Repos I don't want to show on the portfolio
-const HIDDEN = new Set([GITHUB_USER, "s", "idk", "fir", "firrr", "boiiii", "hicoolcool"]);
-
-let allRepos = [];
-async function loadRepos() {
-  const gridEl = document.querySelector(".repo-grid");
-  gridEl.innerHTML = '<p class="loading mono">loading repos…</p>';
-  try {
-    const res = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&sort=pushed`);
-    if (!res.ok) throw new Error(res.status);
-    allRepos = (await res.json()).filter((r) => !r.fork && !HIDDEN.has(r.name));
-  } catch (e) {
-    console.warn("repo fallback", e);
-    allRepos = FALLBACK_REPOS;
-  }
-  buildFilters();
-  renderRepos("All");
-}
-function buildFilters() {
-  const langs = ["All", ...new Set(allRepos.map((r) => r.language).filter(Boolean))];
-  const box = document.querySelector(".filters");
-  box.innerHTML = "";
-  langs.forEach((lang, i) => {
-    const b = document.createElement("button");
-    b.textContent = lang;
-    if (i === 0) b.classList.add("active");
-    b.addEventListener("click", () => {
-      box.querySelectorAll("button").forEach((x) => x.classList.remove("active"));
-      b.classList.add("active");
-      renderRepos(lang);
-    });
-    box.appendChild(b);
-  });
-}
 function escapeHTML(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
-function renderRepos(lang) {
+
+function renderProjects(live = {}) {
   const gridEl = document.querySelector(".repo-grid");
-  const list = lang === "All" ? allRepos : allRepos.filter((r) => r.language === lang);
-  gridEl.innerHTML = list.map((r) => {
-    const name = escapeHTML(r.name);
-    const initials = escapeHTML(r.name.replace(/[^A-Za-z0-9]/g, " ").trim().split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase());
-    // GitHub makes a social preview image for every repo
-    const thumb = `https://opengraph.githubassets.com/1/${GITHUB_USER}/${encodeURIComponent(r.name)}`;
-    const live = r.homepage ? `<a class="btn" href="${escapeHTML(r.homepage)}" target="_blank" rel="noopener">live site ↗</a>` : "";
+  gridEl.innerHTML = FEATURED.map((p) => {
+    const info = live[p.repo] || {};
+    const url = `https://github.com/${GITHUB_USER}/${p.repo}`;
+    const stars = info.stargazers_count;
     return `
-    <article class="repo">
-      <div class="repo-thumb">
-        <span class="initials">${initials}</span>
-        <img src="${thumb}" alt="" loading="lazy" onerror="this.remove()" />
+    <article class="repo${p.featured ? " featured" : ""}">
+      <div class="repo-thumb" style="background:${p.gradient}">
+        ${stars ? `<span class="badge mono">★ ${stars}</span>` : ""}
+        <span class="emoji">${p.emoji}</span>
       </div>
       <div class="repo-body">
-        <h3>${name}</h3>
-        <p>${escapeHTML(r.description || "No description yet. Check out the code!")}</p>
-        <div class="meta mono">
-          ${r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : ""}
-          <span>★ ${r.stargazers_count}</span>
-        </div>
+        <h3>${escapeHTML(p.title)}</h3>
+        <span class="tagline-small">${escapeHTML(p.tagline)}</span>
+        <p>${escapeHTML(p.desc)}</p>
+        <div class="tags mono">${p.tags.map((t) => `<span>${escapeHTML(t)}</span>`).join("")}</div>
         <div class="repo-buttons">
-          <a class="btn ghost" href="${escapeHTML(r.html_url)}" target="_blank" rel="noopener">github</a>
-          ${live}
+          <a class="btn ghost" href="${url}" target="_blank" rel="noopener">github</a>
+          ${info.homepage ? `<a class="btn" href="${escapeHTML(info.homepage)}" target="_blank" rel="noopener">try it ↗</a>` : ""}
         </div>
       </div>
     </article>`;
   }).join("");
-  anime({
-    targets: ".repo",
-    opacity: [0, 1],
-    translateY: [30, 0],
-    scale: [0.95, 1],
-    duration: 700,
-    easing: "easeOutExpo",
-    delay: anime.stagger(60),
-  });
 }
-loadRepos();
+
+// Render straight away, then animate in when scrolled to, and update with live stars
+renderProjects();
+const projIO = new IntersectionObserver((entries) => {
+  if (!entries[0].isIntersecting) return;
+  projIO.disconnect();
+  anime({
+    targets: ".repo", opacity: [0, 1], translateY: [50, 0], rotate: () => [anime.random(-4, 4), 0],
+    duration: 900, delay: anime.stagger(110), easing: "easeOutExpo",
+    // clear the inline transform afterwards so the CSS hover lift still works
+    complete: () => document.querySelectorAll(".repo").forEach((r) => (r.style.transform = "")),
+  });
+  anime({ targets: ".repo .emoji", scale: [0, 1], rotate: [-40, 0], delay: anime.stagger(110, { start: 300 }), duration: 1000, easing: "easeOutElastic(1, .5)" });
+}, { threshold: 0.1 });
+document.querySelectorAll(".repo").forEach((r) => (r.style.opacity = 0));
+projIO.observe(document.querySelector(".repo-grid"));
+
+(async () => {
+  try {
+    const res = await fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100`);
+    if (!res.ok) throw new Error(res.status);
+    const live = {};
+    (await res.json()).forEach((r) => (live[r.name] = r));
+    const visible = document.querySelector(".repo").style.opacity !== "0";
+    renderProjects(live);
+    if (!visible) document.querySelectorAll(".repo").forEach((r) => (r.style.opacity = 0));
+  } catch (e) { console.warn("live repo info unavailable", e); }
+})();
 
 // ---------- 8. Playground ----------
-const blocksEl = document.querySelector(".blocks");
-for (let i = 0; i < 8; i++) {
-  const b = document.createElement("div");
-  b.className = "block";
-  b.style.background = palette[i % palette.length];
-  blocksEl.appendChild(b);
+// small helper: burst of particles at (x, y) inside a container
+function burst(container, x, y, count = 18, spread = 90) {
+  const parts = [];
+  for (let i = 0; i < count; i++) {
+    const d = document.createElement("div");
+    d.className = "spark";
+    d.style.left = x + "px";
+    d.style.top = y + "px";
+    d.style.background = palette[i % palette.length];
+    container.appendChild(d);
+    parts.push(d);
+  }
+  anime({
+    targets: parts,
+    translateX: () => anime.random(-spread, spread),
+    translateY: () => anime.random(-spread, spread),
+    scale: [{ value: () => anime.random(10, 20) / 10, duration: 200 }, { value: 0, duration: 700 }],
+    duration: () => anime.random(700, 1100),
+    easing: "easeOutExpo",
+    complete: () => parts.forEach((p) => p.remove()),
+  });
+  const ring = document.createElement("div");
+  ring.className = "ring";
+  ring.style.cssText = `left:${x}px;top:${y}px;border-color:${palette[anime.random(0, palette.length - 1)]}`;
+  container.appendChild(ring);
+  anime({
+    targets: ring, width: [0, spread * 1.6], height: [0, spread * 1.6],
+    marginLeft: [0, -spread * 0.8], marginTop: [0, -spread * 0.8], opacity: [1, 0],
+    duration: 800, easing: "easeOutExpo", complete: () => ring.remove(),
+  });
 }
-const playAnims = {
-  wave: () => anime({
-    targets: ".block", translateY: [{ value: -50 }, { value: 0 }], duration: 900,
-    delay: anime.stagger(80), easing: "easeInOutSine",
-  }),
-  spin: () => anime({
-    targets: ".block", rotate: "+=360", borderRadius: ["8px", "50%", "8px"],
-    duration: 1200, delay: anime.stagger(60, { from: "center" }), easing: "easeInOutQuart",
-  }),
-  shuffle: () => anime({
-    targets: ".block",
-    translateX: () => anime.random(-120, 120),
-    translateY: () => anime.random(-60, 60),
-    scale: () => anime.random(5, 15) / 10,
-    duration: 700, easing: "easeOutElastic(1, .6)",
-    complete: () => anime({ targets: ".block", translateX: 0, translateY: 0, scale: 1, delay: 500, duration: 800, easing: "easeOutExpo" }),
-  }),
-  draw: () => anime({
-    targets: ".wave-path", strokeDashoffset: [anime.setDashoffset, 0], duration: 1500, easing: "easeInOutSine",
-  }),
-};
-document.querySelectorAll("[data-anim]").forEach((btn) =>
-  btn.addEventListener("click", () => playAnims[btn.dataset.anim]())
-);
-// little idle loop on the wave path
-anime({
-  targets: ".wave-path",
-  d: [{ value: "M0 80 Q 75 150 150 80 T 300 80 T 450 80 T 600 80" }, { value: "M0 80 Q 75 10 150 80 T 300 80 T 450 80 T 600 80" }],
-  duration: 4000, loop: true, direction: "alternate", easing: "easeInOutSine",
-  autoplay: !reduceMotion,
+
+// --- 8a. catch the sun (mini game) ---
+const stage = document.querySelector(".game-stage");
+const sun = document.querySelector(".sun-target");
+const overlay = document.querySelector(".game-overlay");
+const scoreEl = document.querySelector(".score");
+const bestEl = document.querySelector(".best");
+const msgEl = document.querySelector(".game-msg");
+let score = 0, playing = false, best = 0;
+try { best = Number(localStorage.getItem("sunBest")) || 0; } catch (e) {}
+bestEl.textContent = best;
+// idle: the sun floats gently
+const sunFloat = anime({ targets: sun, translateY: [-8, 8], duration: 1400, direction: "alternate", loop: true, easing: "easeInOutSine" });
+
+function moveSun() {
+  const pad = 40;
+  const x = anime.random(pad, stage.clientWidth - pad);
+  const y = anime.random(pad + 10, stage.clientHeight - pad);
+  anime({
+    targets: sun, left: x + "px", top: y + "px", scale: [0.3, 1],
+    duration: Math.max(250, 500 - score * 12), easing: "easeOutBack",
+  });
+}
+function startGame() {
+  score = 0; scoreEl.textContent = 0; playing = true;
+  sunFloat.pause();
+  anime({ targets: overlay, opacity: [1, 0], duration: 300, easing: "linear", complete: () => (overlay.style.display = "none") });
+  moveSun();
+  anime({
+    targets: ".timer-bar", scaleX: [1, 0], duration: 20000, easing: "linear",
+    complete: endGame,
+  });
+}
+function endGame() {
+  playing = false;
+  const newBest = score > best;
+  if (newBest) {
+    best = score; bestEl.textContent = best;
+    try { localStorage.setItem("sunBest", best); } catch (e) {}
+  }
+  msgEl.textContent = newBest ? `New best: ${score}! 🌅` : `You caught ${score} suns. Best is ${best}.`;
+  document.querySelector(".game-start").textContent = "play again";
+  overlay.style.display = "";
+  anime({ targets: overlay, opacity: [0, 1], duration: 400, easing: "linear" });
+  anime({ targets: sun, left: "50%", top: "50%", duration: 600, easing: "easeOutExpo", complete: () => sunFloat.play() });
+}
+document.querySelector(".game-start").addEventListener("click", startGame);
+sun.addEventListener("click", (e) => {
+  if (!playing) return;
+  score++;
+  scoreEl.textContent = score;
+  const r = stage.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  burst(stage, x, y, 14, 70);
+  // floating +1
+  const pop = document.createElement("span");
+  pop.className = "pop"; pop.textContent = "+1";
+  pop.style.left = x + "px"; pop.style.top = y + "px";
+  stage.appendChild(pop);
+  anime({ targets: pop, translateY: -50, opacity: [1, 0], duration: 800, easing: "easeOutQuad", complete: () => pop.remove() });
+  anime({ targets: scoreEl.parentElement, scale: [1.3, 1], duration: 400, easing: "easeOutElastic(1, .5)" });
+  moveSun();
 });
+
+// --- 8b. type & explode ---
+const typeIn = document.querySelector(".type-in");
+const typeOut = document.querySelector(".type-out");
+function renderLetters(text, animateLast) {
+  typeOut.innerHTML = [...text].map((ch, i) => `<span style="color:${palette[i % palette.length]}">${escapeHTML(ch)}</span>`).join("");
+  if (animateLast && typeOut.lastElementChild) {
+    anime({ targets: typeOut.lastElementChild, translateY: [-60, 0], rotate: [anime.random(-90, 90), 0], scale: [2, 1], duration: 800, easing: "easeOutElastic(1, .5)" });
+  }
+}
+renderLetters("hello!", false);
+typeIn.addEventListener("input", () => renderLetters(typeIn.value || "hello!", !!typeIn.value));
+document.querySelector(".type-boom").addEventListener("click", () => {
+  const letters = typeOut.querySelectorAll("span");
+  anime.timeline()
+    .add({
+      targets: letters,
+      translateX: () => anime.random(-160, 160),
+      translateY: () => anime.random(-90, 90),
+      rotate: () => anime.random(-360, 360),
+      scale: () => anime.random(5, 20) / 10,
+      duration: 600, easing: "easeOutExpo",
+    })
+    .add({
+      targets: letters, translateX: 0, translateY: 0, rotate: 0, scale: 1,
+      duration: 1200, delay: anime.stagger(50, { from: "center" }), easing: "easeOutElastic(1, .45)",
+    }, "+=400");
+});
+
+// --- 8c. spark pad ---
+const pad = document.querySelector(".spark-stage");
+const hint = document.querySelector(".spark-hint");
+let dragging = false, lastSpark = 0;
+function padPoint(e) {
+  const r = pad.getBoundingClientRect();
+  return [e.clientX - r.left, e.clientY - r.top];
+}
+pad.addEventListener("pointerdown", (e) => {
+  dragging = true;
+  if (hint) anime({ targets: hint, opacity: 0, duration: 300, easing: "linear" });
+  burst(pad, ...padPoint(e), 22, 100);
+});
+pad.addEventListener("pointermove", (e) => {
+  if (!dragging || performance.now() - lastSpark < 40) return;
+  lastSpark = performance.now();
+  burst(pad, ...padPoint(e), 5, 30);
+});
+window.addEventListener("pointerup", () => (dragging = false));
 
 // ---------- 9. Toast + copy username ----------
 const toast = document.querySelector(".toast");
