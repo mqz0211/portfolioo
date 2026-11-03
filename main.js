@@ -60,6 +60,26 @@ anime.timeline({ easing: "easeOutExpo" })
   .add({ targets: ".hero-photo", opacity: [0, 1], translateY: [60, 0], rotate: [6, 0], scale: [0.9, 1], duration: 1400 }, 200)
   .add({ targets: ".avatar", scale: [0, 1], duration: 900, easing: "easeOutElastic(1, .6)" }, 0);
 
+// hills rise in, back layers first
+anime({ targets: ".hill", translateY: [120, 0], opacity: [0, 1], duration: 1600, delay: anime.stagger(150), easing: "easeOutExpo" });
+// parallax: back hills move slower than front hills when you scroll
+const hills = [...document.querySelectorAll(".hill")];
+window.addEventListener("scroll", () => {
+  if (reduceMotion) return;
+  const y = window.scrollY;
+  if (y > window.innerHeight) return;
+  hills.forEach((h, i) => (h.style.transform = `translateY(${y * (0.25 - i * 0.1)}px)`));
+}, { passive: true });
+
+// highlight the nav link for the section on screen
+const navLinks = [...document.querySelectorAll(".nav nav a")];
+const navIO = new IntersectionObserver((entries) => {
+  entries.forEach((e) => {
+    if (e.isIntersecting) navLinks.forEach((a) => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+  });
+}, { rootMargin: "-45% 0px -50% 0px" });
+document.querySelectorAll("section[id]").forEach((sec) => navIO.observe(sec));
+
 // photo tilts slightly towards the mouse
 const photo = document.querySelector(".hero-photo");
 if (!reduceMotion && window.matchMedia("(hover: hover)").matches) {
@@ -226,15 +246,32 @@ function escapeHTML(s) {
 function renderRepos(lang) {
   const gridEl = document.querySelector(".repo-grid");
   const list = lang === "All" ? allRepos : allRepos.filter((r) => r.language === lang);
-  gridEl.innerHTML = list.map((r) => `
-    <a class="repo" href="${escapeHTML(r.html_url)}" target="_blank" rel="noopener">
-      <h3>${escapeHTML(r.name)}</h3>
-      <p>${escapeHTML(r.description || "No description yet — check out the code!")}</p>
-      <div class="meta mono">
-        ${r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : ""}
-        <span>★ ${r.stargazers_count}</span>
+  gridEl.innerHTML = list.map((r) => {
+    const name = escapeHTML(r.name);
+    const initials = escapeHTML(r.name.replace(/[^A-Za-z0-9]/g, " ").trim().split(/\s+/).map((w) => w[0]).join("").slice(0, 3).toUpperCase());
+    // GitHub makes a social preview image for every repo
+    const thumb = `https://opengraph.githubassets.com/1/${GITHUB_USER}/${encodeURIComponent(r.name)}`;
+    const live = r.homepage ? `<a class="btn" href="${escapeHTML(r.homepage)}" target="_blank" rel="noopener">live site ↗</a>` : "";
+    return `
+    <article class="repo">
+      <div class="repo-thumb">
+        <span class="initials">${initials}</span>
+        <img src="${thumb}" alt="" loading="lazy" onerror="this.remove()" />
       </div>
-    </a>`).join("");
+      <div class="repo-body">
+        <h3>${name}</h3>
+        <p>${escapeHTML(r.description || "No description yet. Check out the code!")}</p>
+        <div class="meta mono">
+          ${r.language ? `<span><span class="lang-dot"></span>${escapeHTML(r.language)}</span>` : ""}
+          <span>★ ${r.stargazers_count}</span>
+        </div>
+        <div class="repo-buttons">
+          <a class="btn ghost" href="${escapeHTML(r.html_url)}" target="_blank" rel="noopener">github</a>
+          ${live}
+        </div>
+      </div>
+    </article>`;
+  }).join("");
   anime({
     targets: ".repo",
     opacity: [0, 1],
