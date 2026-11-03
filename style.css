@@ -156,7 +156,6 @@ a { color: inherit; }
 }
 .socials a svg { color: var(--accent); }
 .socials a:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
-.hint-text { color: var(--muted); font-size: .8rem; opacity: .7; margin-top: -16px; }
 
 @media (max-width: 760px) {
   .hero-head { flex-direction: column; text-align: center; gap: 16px; }
@@ -204,7 +203,13 @@ a { color: inherit; }
   display: grid; place-items: center;
 }
 .repo.featured .repo-thumb { flex: 0 0 42%; min-height: 240px; }
-.repo-thumb .emoji { font-size: 4.5rem; filter: drop-shadow(0 10px 20px rgba(0,0,0,.35)); }
+.repo-thumb::before {
+  content: ""; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: radial-gradient(circle at center, #000 20%, transparent 75%);
+}
+.repo-thumb .icon { position: relative; color: #fff; display: grid; place-items: center; width: 96px; height: 96px; border-radius: 24px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(6px); }
 .repo-thumb .badge {
   position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px;
   background: rgba(0,0,0,.35); color: #fff; font-size: .75rem; backdrop-filter: blur(6px);
@@ -243,8 +248,8 @@ a { color: inherit; }
 .timer-bar { position: absolute; top: 0; left: 0; height: 5px; width: 100%; background: var(--accent-2); transform-origin: left; transform: scaleX(0); }
 .sun-target {
   position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px;
-  border: none; border-radius: 50%; cursor: pointer; font-size: 2.2rem; line-height: 64px;
-  background: radial-gradient(circle, #fff2b0, #ffc65c 60%, #ff8a3d); color: #b34a00;
+  border: none; border-radius: 50%; cursor: pointer;
+  background: radial-gradient(circle, #fff2b0, #ffc65c 60%, #ff8a3d);
   box-shadow: 0 0 40px 10px rgba(255, 198, 92, .6);
 }
 .game-overlay {
@@ -274,12 +279,8 @@ a { color: inherit; }
 /* ---------- contact / footer ---------- */
 .contact .big { font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 500; }
 .footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 28px clamp(16px, 6vw, 80px); border-top: 1px solid var(--line); color: var(--muted); font-size: .8rem; }
-.footer .hint { opacity: .5; }
 
-.toast {
-  position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 120px);
-  background: var(--fg); color: var(--bg); padding: 10px 18px; border-radius: 999px; z-index: 90; font-size: .85rem;
-}
+
 
 /* confetti pieces for easter egg */
 .confetti { position: fixed; top: -20px; width: 10px; height: 14px; z-index: 95; pointer-events: none; }

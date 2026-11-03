@@ -15,8 +15,8 @@ My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [a
 7. **Animated stat counters** pulled from the GitHub API
 8. **Scroll reveal** and a floating nav that highlights the current section
 9. **Dark / light mode**, saved in localStorage
-10. **Custom cursor**, photo tilt on hover, and a copy-to-clipboard toast
-11. **Easter egg**: enter the Konami code (↑ ↑ ↓ ↓ ← → ← → b a)
+10. **Custom cursor** and photo tilt on hover
+11. **Hidden easter egg** (Konami code)
 12. Responsive layout and `prefers-reduced-motion` support
 
 ## Run locally
