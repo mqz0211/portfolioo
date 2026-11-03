@@ -3,7 +3,7 @@
 // =========================================================
 const GITHUB_USER = "mqz0211";
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const palette = ["#ff4b4b", "#ffb347", "#5ce1e6", "#b388ff", "#7CFC9A"];
+const palette = ["#ff8a3d", "#ffc65c", "#f17fa8", "#9b7bff", "#ff5e5b"]; // sunset colours
 
 // ---------- 1. Theme toggle (saved in localStorage) ----------
 const root = document.documentElement;
@@ -21,6 +21,7 @@ document.querySelector(".theme-toggle").addEventListener("click", () => {
 const cursor = document.querySelector(".cursor");
 window.addEventListener("mousemove", (e) => {
   cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+  cursor.classList.add("on");
 });
 document.addEventListener("mouseover", (e) => {
   cursor.classList.toggle("big", !!e.target.closest("a, button"));
@@ -39,7 +40,7 @@ function splitChars(el) {
         frag.appendChild(s);
       });
       node.replaceWith(frag);
-    } else if (!node.classList.contains("scramble")) {
+    } else if (!node.classList.contains("scramble") && !node.classList.contains("hl")) {
       splitChars(node);
     }
   });
@@ -48,7 +49,7 @@ document.querySelectorAll(".title .line").forEach(splitChars);
 
 anime.timeline({ easing: "easeOutExpo" })
   .add({
-    targets: ".title .char, .title .scramble",
+    targets: ".title .char, .title .scramble, .title .hl",
     translateY: [80, 0],
     rotate: [12, 0],
     opacity: [0, 1],
@@ -56,7 +57,22 @@ anime.timeline({ easing: "easeOutExpo" })
     delay: anime.stagger(30),
   })
   .add({ targets: ".eyebrow, .sub, .hero-cta", opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(100) }, "-=800")
-  .add({ targets: ".logo-path", strokeDashoffset: [anime.setDashoffset, 0], duration: 1200, easing: "easeInOutSine" }, 0);
+  .add({ targets: ".hero-photo", opacity: [0, 1], translateY: [60, 0], rotate: [6, 0], scale: [0.9, 1], duration: 1400 }, 200)
+  .add({ targets: ".avatar", scale: [0, 1], duration: 900, easing: "easeOutElastic(1, .6)" }, 0);
+
+// photo tilts slightly towards the mouse
+const photo = document.querySelector(".hero-photo");
+if (!reduceMotion && window.matchMedia("(hover: hover)").matches) {
+  photo.addEventListener("mousemove", (e) => {
+    const r = photo.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    anime({ targets: photo, rotateY: x * 14, rotateX: -y * 14, duration: 400, easing: "easeOutQuad" });
+  });
+  photo.addEventListener("mouseleave", () =>
+    anime({ targets: photo, rotateY: 0, rotateX: 0, duration: 900, easing: "easeOutElastic(1, .5)" })
+  );
+}
 
 // ---------- 4. Scramble text (cycles through words) ----------
 const scrambleEl = document.querySelector(".scramble");
