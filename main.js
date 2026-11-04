@@ -267,53 +267,41 @@ async function countUp() {
 }
 const profileReady = loadProfile();
 
-// Simple line icons for the project cards
-const svgIcon = (d) => `<svg viewBox="0 0 24 24" width="56" height="56" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="${d}"/></svg>`;
-const ICON = {
-  history: svgIcon("M3 12a9 9 0 1 0 2.6-6.4M3 4v5h5M12 7v5l3 2"),
-  clean: svgIcon("M9 3h6v3H9zM7 4.5H5V21h14V4.5h-2M8.5 13.5l2.5 2.5 4.5-4.5"),
-  terminal: svgIcon("M3 5h18v14H3zM7 10l3 2-3 2M12.5 15H17"),
-  flag: svgIcon("M5 21V4M5 4h13l-2.5 4L18 12H5"),
-};
-
 // Hand-picked projects. Stars + website links are filled in live from GitHub.
+// Each card's thumbnail is an animated scene from project-scenes.js (matched by `scene`).
 const FEATURED = [
   {
     repo: "Claude-Checkpoint-Manager-CCM",
     title: "Claude Checkpoint Manager",
-    icon: ICON.history,
+    scene: "ccm",
     tagline: "An undo button for AI coding sessions.",
     desc: "A CLI that saves your code and your AI session context together, shows a clean timeline, and rolls back instantly without touching your real git history.",
     tags: ["Node.js", "CLI", "Git"],
-    gradient: "linear-gradient(135deg, #9b7bff, #f17fa8)",
     featured: true,
   },
   {
     repo: "tidypaste",
     title: "TidyPaste",
-    icon: ICON.clean,
+    scene: "tidypaste",
     tagline: "Paste messy text, get it back clean.",
     desc: "Strips tracking junk from links, fixes broken PDF line breaks and copies the clean result for you. Runs fully in your browser.",
     tags: ["JavaScript", "Web app", "Privacy"],
-    gradient: "linear-gradient(135deg, #ffc65c, #ff8a3d)",
   },
   {
     repo: "termux",
     title: "Termux Field Guide",
-    icon: ICON.terminal,
+    scene: "termux",
     tagline: "Turn your phone into a Linux lab.",
     desc: "A guide to 100+ Linux commands and tools on Android with Termux. No PC needed. My most-starred repo.",
     tags: ["Linux", "Android", "Guide"],
-    gradient: "linear-gradient(135deg, #2f3b66, #5ce1e6)",
   },
   {
     repo: "RBLXRacer",
     title: "RBLXRacer",
-    icon: ICON.flag,
+    scene: "racer",
     tagline: "Open-source Roblox racing framework.",
     desc: "A framework for building fast, customisable multiplayer racing games in Roblox Studio with Lua.",
     tags: ["Lua", "Roblox", "Game dev"],
-    gradient: "linear-gradient(135deg, #ff5e5b, #ffc65c)",
   },
 ];
 
@@ -329,9 +317,9 @@ function renderProjects(live = {}) {
     const stars = info.stargazers_count;
     return `
     <article class="repo${p.featured ? " featured" : ""}">
-      <div class="repo-thumb" style="background:${p.gradient}">
+      <div class="repo-thumb" data-scene="${p.scene}">
         ${stars ? `<span class="badge mono">${stars} stars</span>` : ""}
-        <span class="icon">${p.icon}</span>
+        ${(window.PROJECT_SCENES || {})[p.scene] || ""}
       </div>
       <div class="repo-body">
         <h3>${escapeHTML(p.title)}</h3>
@@ -345,6 +333,7 @@ function renderProjects(live = {}) {
       </div>
     </article>`;
   }).join("");
+  if (window.mountScenes) mountScenes(); // start the thumbnail animations (project-scenes.js)
 }
 
 // Render straight away, then animate in when scrolled to, and update with live stars
@@ -358,7 +347,6 @@ const projIO = new IntersectionObserver((entries) => {
     // clear the inline transform afterwards so the CSS hover lift still works
     complete: () => document.querySelectorAll(".repo").forEach((r) => (r.style.transform = "")),
   });
-  anime({ targets: ".repo .icon", scale: [0.6, 1], opacity: [0, 1], delay: anime.stagger(110, { start: 300 }), duration: 1000, easing: "easeOutElastic(1, .5)" });
 }, { threshold: 0.1 });
 document.querySelectorAll(".repo").forEach((r) => (r.style.opacity = 0));
 projIO.observe(document.querySelector(".repo-grid"));
