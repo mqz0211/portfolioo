@@ -27,4 +27,4 @@ python3 -m http.server
 ```
 
 ## Deploy
-Hosted on Vercel as a static site. No build step is needed.
+Hosted on Vercel as a static site.
