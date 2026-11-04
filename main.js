@@ -59,8 +59,7 @@ anime.timeline({ easing: "easeOutExpo" })
   .add({ targets: ".eyebrow, .tagline, .socials", opacity: [0, 1], translateY: [20, 0], delay: anime.stagger(120) }, "-=800")
   .add({ targets: ".squiggle path", strokeDashoffset: [anime.setDashoffset, 0], duration: 1000, easing: "easeInOutSine" }, "-=600")
   .add({ targets: ".socials a", scale: [0.6, 1], opacity: [0, 1], delay: anime.stagger(80), duration: 700, easing: "easeOutBack" }, "-=700")
-  .add({ targets: ".hero-photo", opacity: [0, 1], scale: [0.4, 1], rotate: [-25, 0], duration: 1400, easing: "easeOutElastic(1, .7)" }, 200)
-  .add({ targets: ".avatar", scale: [0, 1], duration: 900, easing: "easeOutElastic(1, .6)" }, 0);
+  .add({ targets: ".hero-photo", opacity: [0, 1], scale: [0.4, 1], rotate: [-25, 0], duration: 1400, easing: "easeOutElastic(1, .7)" }, 200);
 
 // the little sun spins slowly forever
 anime({ targets: ".sun", rotate: 360, duration: 12000, loop: true, easing: "linear", autoplay: !reduceMotion });
