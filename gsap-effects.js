@@ -21,7 +21,7 @@ if (window.gsap && window.ScrollTrigger) {
     });
 
     // ---- 2. nav items drop in one after another ----
-    gsap.from(".nav .logo, .nav nav a, .nav .theme-toggle", {
+    gsap.from(".nav nav a, .nav .theme-toggle", {
       y: -16,
       opacity: 0,
       duration: 0.7,
