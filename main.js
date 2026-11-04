@@ -591,25 +591,210 @@ boomBtn.addEventListener("click", () => {
     });
 });
 
-// --- 8c. spark pad ---
-const pad = document.querySelector(".spark-stage");
-const hint = document.querySelector(".spark-hint");
-let dragging = false, lastSpark = 0;
-function padPoint(e) {
-  const r = pad.getBoundingClientRect();
-  return [e.clientX - r.left, e.clientY - r.top];
+// --- 8c. sunset pit (canvas physics): drop balls, grab them, throw them, flip gravity ---
+const pit = document.querySelector(".pit-stage");
+const pitHint = document.querySelector(".pit-hint");
+const pitFlip = document.querySelector(".pit-flip");
+const pitCanvas = document.createElement("canvas");
+pit.prepend(pitCanvas);
+const pctx = pitCanvas.getContext("2d");
+const balls = [];
+const MAX_BALLS = 34, BOUNCE = 0.72;
+let pw = 0, ph = 0, gravity = 1, grabbed = null, grabAt = { x: 0, y: 0 }, pitRaf = 0, pitLast = 0, seeded = false;
+const pitRand = (a, b) => a + Math.random() * (b - a);
+
+function addBall(x, y, r) {
+  const radius = r || pitRand(15, 30);
+  const b = {
+    x, y, vx: pitRand(-2, 2), vy: 0, r: radius, m: radius * radius,
+    color: palette[Math.floor(Math.random() * palette.length)],
+    sq: 0, sa: 0,          // squash amount and the angle it happened at
+    scale: 0.2, dying: false,
+  };
+  balls.push(b);
+  const alive = balls.filter((o) => !o.dying);
+  if (alive.length > MAX_BALLS) { // too many: the oldest one shrinks away
+    alive[0].dying = true;
+    if (grabbed === alive[0]) grabbed = null;
+  }
+  return b;
 }
-pad.addEventListener("pointerdown", (e) => {
-  dragging = true;
-  if (hint) anime({ targets: hint, opacity: 0, duration: 300, easing: "linear" });
-  burst(pad, ...padPoint(e), 22, 100);
+
+// squash a ball a little when it hits something (normal = direction of the hit)
+function thud(b, speed, angle) {
+  const s = Math.min(1, speed / 14);
+  if (s > b.sq) { b.sq = s; b.sa = angle; }
+}
+
+function pitStep(dt) {
+  const g = 0.55 * gravity * dt;
+  for (const b of balls) {
+    if (b.dying) { b.scale *= Math.pow(0.82, dt); continue; }
+    if (b === grabbed) { // a held ball chases the pointer, so letting go throws it at that speed
+      b.vx = Math.max(-40, Math.min(40, (grabAt.x - b.x) * 0.35));
+      b.vy = Math.max(-40, Math.min(40, (grabAt.y - b.y) * 0.35));
+    } else {
+      b.vy += g;
+      b.vx *= Math.pow(0.9985, dt);
+      b.vy *= Math.pow(0.9985, dt);
+    }
+    b.x += b.vx * dt;
+    b.y += b.vy * dt;
+
+    if (b.x < b.r) { b.x = b.r; if (b.vx < 0) { thud(b, -b.vx, 0); b.vx = -b.vx * BOUNCE; } }
+    else if (b.x > pw - b.r) { b.x = pw - b.r; if (b.vx > 0) { thud(b, b.vx, 0); b.vx = -b.vx * BOUNCE; } }
+    if (b.y > ph - b.r) { // floor
+      b.y = ph - b.r;
+      if (b.vy > 0) { thud(b, b.vy, Math.PI / 2); b.vy = b.vy < 1.2 ? 0 : -b.vy * BOUNCE; }
+      b.vx *= Math.pow(0.985, dt);
+    } else if (b.y < b.r) { // ceiling
+      b.y = b.r;
+      if (b.vy < 0) { thud(b, -b.vy, Math.PI / 2); b.vy = b.vy > -1.2 ? 0 : -b.vy * BOUNCE; }
+      b.vx *= Math.pow(0.985, dt);
+    }
+  }
+
+  // ball against ball: push them apart, then bounce them off each other
+  for (let i = 0; i < balls.length; i++) {
+    for (let k = i + 1; k < balls.length; k++) {
+      const a = balls[i], c = balls[k];
+      if (a.dying || c.dying) continue;
+      const dx = c.x - a.x, dy = c.y - a.y, min = a.r + c.r, d2 = dx * dx + dy * dy;
+      if (d2 >= min * min || d2 === 0) continue;
+      const d = Math.sqrt(d2), nx = dx / d, ny = dy / d, overlap = min - d;
+      const ia = a === grabbed ? 0 : 1 / a.m, ic = c === grabbed ? 0 : 1 / c.m, sum = ia + ic || 1;
+      a.x -= (nx * overlap * ia) / sum; a.y -= (ny * overlap * ia) / sum;
+      c.x += (nx * overlap * ic) / sum; c.y += (ny * overlap * ic) / sum;
+      const vn = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny;
+      if (vn < 0) {
+        const imp = (-(1 + BOUNCE) * vn) / sum;
+        a.vx -= imp * nx * ia; a.vy -= imp * ny * ia;
+        c.vx += imp * nx * ic; c.vy += imp * ny * ic;
+        if (-vn > 1.5) { const ang = Math.atan2(ny, nx); thud(a, -vn, ang); thud(c, -vn, ang); }
+      }
+    }
+  }
+  // separating balls can shove them into a wall, so keep everything inside the pit
+  for (const b of balls) {
+    if (b.dying) continue;
+    b.x = Math.min(Math.max(b.x, b.r), pw - b.r);
+    b.y = Math.min(Math.max(b.y, b.r), ph - b.r);
+  }
+}
+
+function pitDraw() {
+  pctx.clearRect(0, 0, pw, ph);
+  const floorY = gravity > 0 ? ph : 0;
+  for (const b of balls) { // soft shadow on whichever wall is the floor
+    const r = b.r * b.scale, height = Math.abs(floorY - b.y) / ph;
+    pctx.fillStyle = `rgba(0,0,0,${Math.max(0, 0.3 - height * 0.3)})`;
+    pctx.beginPath();
+    pctx.ellipse(b.x, floorY - gravity * 2, r * (1.05 - height * 0.4), 4, 0, 0, 6.283);
+    pctx.fill();
+  }
+  for (const b of balls) {
+    const r = b.r * b.scale;
+    if (r < 0.5) continue;
+    pctx.save();
+    pctx.translate(b.x, b.y);
+    pctx.rotate(b.sa);
+    pctx.scale(1 - b.sq * 0.22, 1 + b.sq * 0.22); // flatten along the hit, bulge sideways
+    const grad = pctx.createRadialGradient(-r * 0.3, -r * 0.3, r * 0.1, 0, 0, r);
+    grad.addColorStop(0, "rgba(255,255,255,0.4)");
+    grad.addColorStop(0.55, "rgba(255,255,255,0)");
+    grad.addColorStop(1, "rgba(0,0,0,0.28)");
+    pctx.fillStyle = b.color;
+    pctx.beginPath(); pctx.arc(0, 0, r, 0, 6.283); pctx.fill();
+    pctx.fillStyle = grad;
+    pctx.beginPath(); pctx.arc(0, 0, r, 0, 6.283); pctx.fill();
+    if (b === grabbed) { pctx.strokeStyle = "rgba(255,255,255,0.85)"; pctx.lineWidth = 2; pctx.stroke(); }
+    pctx.restore();
+  }
+}
+
+function pitFrame(now) {
+  pitRaf = requestAnimationFrame(pitFrame);
+  const dt = Math.min(2, (now - pitLast) / 16.67 || 1);
+  pitLast = now;
+  for (let s = 0; s < 3; s++) pitStep(dt / 3); // small sub-steps keep stacking stable
+  for (let i = balls.length - 1; i >= 0; i--) {
+    const b = balls[i];
+    if (b.dying) { if (b.scale < 0.05) balls.splice(i, 1); continue; }
+    b.scale += (1 - b.scale) * Math.min(1, 0.22 * dt);
+    b.sq *= Math.pow(0.86, dt);
+  }
+  pitDraw();
+}
+
+// for people who prefer reduced motion: no animation, balls just settle instantly
+function pitSettle() {
+  for (let i = 0; i < 600; i++) pitStep(1);
+  balls.forEach((b) => { b.scale = b.dying ? 0 : 1; b.sq = 0; });
+  for (let i = balls.length - 1; i >= 0; i--) if (balls[i].dying) balls.splice(i, 1);
+  pitDraw();
+}
+
+function sizePit() {
+  const r = pit.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  pw = r.width; ph = r.height;
+  pitCanvas.width = Math.max(1, Math.round(pw * dpr));
+  pitCanvas.height = Math.max(1, Math.round(ph * dpr));
+  pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  balls.forEach((b) => { b.x = Math.min(Math.max(b.x, b.r), pw - b.r); b.y = Math.min(Math.max(b.y, b.r), ph - b.r); });
+  if (!seeded && pw > 0) { // a few balls to start with, so the pit is never empty
+    seeded = true;
+    for (let i = 0; i < 7; i++) addBall(((i + 0.5) / 7) * pw, pitRand(20, ph * 0.4)).scale = 1;
+    if (reduceMotion) pitSettle();
+  }
+  if (reduceMotion) pitDraw();
+}
+new ResizeObserver(sizePit).observe(pit);
+sizePit();
+
+const pitPoint = (e) => {
+  const r = pit.getBoundingClientRect();
+  return { x: Math.min(Math.max(e.clientX - r.left, 0), r.width), y: Math.min(Math.max(e.clientY - r.top, 0), r.height) };
+};
+const letGo = () => { grabbed = null; pit.classList.remove("grabbing"); };
+pit.addEventListener("pointerdown", (e) => {
+  const p = pitPoint(e);
+  let hit = null;
+  for (let i = balls.length - 1; i >= 0; i--) { // grab the top-most ball under the pointer...
+    const b = balls[i];
+    if (!b.dying && (p.x - b.x) ** 2 + (p.y - b.y) ** 2 <= (b.r + 6) ** 2) { hit = b; break; }
+  }
+  if (!hit) hit = addBall(p.x, p.y); // ...or make a new one right there (hold it to carry it, let go to drop it)
+  grabbed = hit;
+  grabAt = p;
+  pit.classList.add("grabbing");
+  try { pit.setPointerCapture(e.pointerId); } catch (err) {}
+  if (pitHint) anime({ targets: pitHint, opacity: 0, duration: 300, easing: "linear" });
+  if (reduceMotion) { letGo(); pitSettle(); }
 });
-pad.addEventListener("pointermove", (e) => {
-  if (!dragging || performance.now() - lastSpark < 40) return;
-  lastSpark = performance.now();
-  burst(pad, ...padPoint(e), 5, 30);
+pit.addEventListener("pointermove", (e) => { if (grabbed) grabAt = pitPoint(e); });
+pit.addEventListener("pointerup", letGo);
+pit.addEventListener("pointercancel", letGo);
+pit.addEventListener("lostpointercapture", letGo);
+window.addEventListener("pointerup", letGo);
+
+pitFlip.addEventListener("click", () => {
+  gravity = -gravity;
+  pitFlip.textContent = gravity > 0 ? "flip gravity" : "flip it back";
+  if (reduceMotion) pitSettle();
 });
-window.addEventListener("pointerup", () => (dragging = false));
+
+// only simulate while the pit is on screen
+if (!reduceMotion) {
+  new IntersectionObserver(([e]) => {
+    if (e.isIntersecting) {
+      if (!pitRaf) { pitLast = performance.now(); pitRaf = requestAnimationFrame(pitFrame); }
+    } else {
+      cancelAnimationFrame(pitRaf);
+      pitRaf = 0;
+    }
+  }).observe(pit);
+}
 
 // ---------- 10. Konami code easter egg ----------
 const code = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];

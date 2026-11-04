@@ -283,8 +283,14 @@ a { color: inherit; }
 .type-in:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 /* spark */
-.spark-stage { position: relative; min-height: 160px; flex: 1; border-radius: 16px; background: var(--bg); overflow: hidden; cursor: crosshair; touch-action: none; display: grid; place-items: center; }
-.spark-hint { color: var(--muted); font-size: .85rem; pointer-events: none; }
+.pit-stage {
+  position: relative; min-height: 230px; flex: 1; border-radius: 16px; overflow: hidden;
+  cursor: grab; touch-action: none;
+  background: linear-gradient(to bottom, #1a1030, #2d1b40 65%, #4a2442);
+}
+.pit-stage.grabbing { cursor: grabbing; }
+.pit-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pit-hint { position: absolute; top: 12px; left: 0; right: 0; text-align: center; color: #b9aec9; font-size: .8rem; pointer-events: none; }
 .spark { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; pointer-events: none; }
 .ring { position: absolute; border: 2px solid; border-radius: 50%; pointer-events: none; }
 

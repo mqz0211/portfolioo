@@ -11,7 +11,7 @@ My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [a
 6. **Playground**
    - *Catch the sun*: a 20-second click game with a saved best score
    - *Type & explode*: letters bounce in as you type and blow apart on "boom"
-   - *Spark pad*: click or drag to make fireworks
+   - *Sunset Pit*: drop bouncing balls, grab and throw them around, and flip gravity (small canvas physics engine)
 7. **Animated stat counters** pulled from the GitHub API
 8. **Scroll reveal** and a floating nav that highlights the current section
 9. **Dark / light mode**, saved in localStorage
