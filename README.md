@@ -19,6 +19,7 @@ My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [a
 11. **Hidden easter egg** (Konami code)
 12. Responsive layout and `prefers-reduced-motion` support
 13. **GSAP + ScrollTrigger**: scroll progress bar, nav drop-in, hero fade-out on scroll, staggered stat cards and skill pills, magnetic contact buttons
+14. **Liquid Glass look on Apple devices** (iPhone, iPad, Mac): frosted glass nav, link bar and buttons with rim light, a highlight that follows the pointer, and press-to-lift lenses. Add `?glass=on` to the URL to see it on other devices
 
 ## Run locally
 Open `index.html` in a browser, or run:

@@ -3,6 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script>
+    // Liquid Glass look for Apple devices (iPhone, iPad, Mac). ?glass=on forces it, ?glass=off turns it off.
+    (function () {
+      var m = /[?&]glass=(on|off)/.exec(location.search);
+      var apple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
+      if (m ? m[1] === "on" : apple) document.documentElement.classList.add("liquid");
+    })();
+  </script>
   <title>mqz — portfolio</title>
   <meta name="description" content="Portfolio of mqz (mqz0211) — student developer building tools, scripts and web things." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -175,5 +183,6 @@
   <script src="project-scenes.js"></script>
   <script src="main.js"></script>
   <script src="gsap-effects.js"></script>
+  <script src="liquid-glass.js"></script>
 </body>
 </html>
