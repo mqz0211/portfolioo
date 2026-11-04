@@ -469,22 +469,126 @@ function renderLetters(text, animateLast) {
   }
 }
 renderLetters("hello!", false);
-typeIn.addEventListener("input", () => renderLetters(typeIn.value || "hello!", !!typeIn.value));
-document.querySelector(".type-boom").addEventListener("click", () => {
-  const letters = typeOut.querySelectorAll("span");
-  anime.timeline()
+const typeStage = document.querySelector(".type-stage");
+const boomBtn = document.querySelector(".type-boom");
+let exploding = false;
+typeIn.addEventListener("input", () => {
+  if (exploding) return; // the word is rebuilt from the input when the blast ends
+  renderLetters(typeIn.value || "hello!", !!typeIn.value);
+});
+
+// the blast itself: flash, shockwave rings, debris and a shake of the box, all from the centre of the stage
+function blastFx() {
+  const x = typeStage.clientWidth / 2, y = typeStage.clientHeight / 2;
+
+  const flash = document.createElement("div");
+  flash.className = "boom-flash";
+  typeStage.appendChild(flash);
+  anime({
+    targets: flash, easing: "linear",
+    opacity: [{ value: 1, duration: 70 }, { value: 0, duration: 380, easing: "easeOutQuad" }],
+    complete: () => flash.remove(),
+  });
+
+  [0, 110].forEach((delay, k) => {
+    const size = k ? 190 : 300;
+    const ring = document.createElement("div");
+    ring.className = "ring";
+    ring.style.cssText = `left:${x}px;top:${y}px;opacity:0;border-width:3px;border-color:${k ? palette[1] : "#fff3d6"}`;
+    typeStage.appendChild(ring);
+    anime({
+      targets: ring, width: [0, size], height: [0, size], marginLeft: [0, -size / 2], marginTop: [0, -size / 2],
+      opacity: [0.9, 0], duration: 750, delay, easing: "easeOutExpo", complete: () => ring.remove(),
+    });
+  });
+
+  // debris: little shards fly out in every direction, then drop
+  const shards = [], path = [];
+  for (let i = 0; i < 44; i++) {
+    const s = document.createElement("div");
+    const w = anime.random(4, 11);
+    s.className = "debris";
+    s.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${Math.random() < 0.5 ? w : Math.ceil(w * 0.4)}px;background:${palette[i % palette.length]}`;
+    typeStage.appendChild(s);
+    shards.push(s);
+    const a = Math.random() * Math.PI * 2, d = anime.random(50, 170);
+    path.push({ x: Math.cos(a) * d, y: Math.sin(a) * d * 0.8 - 15, spin: anime.random(-540, 540) });
+  }
+  anime({
+    targets: shards,
+    translateX: { value: (el, i) => path[i].x, duration: 1000, easing: "easeOutExpo" },
+    translateY: [
+      { value: (el, i) => path[i].y, duration: 420, easing: "easeOutCubic" },
+      { value: (el, i) => path[i].y + 70, duration: 600, easing: "easeInQuad" },
+    ],
+    rotate: { value: (el, i) => path[i].spin, duration: 1000, easing: "easeOutQuad" },
+    scale: [{ value: 1.2, duration: 120, easing: "easeOutQuad" }, { value: 0, duration: 900, easing: "easeInQuad" }],
+    opacity: [{ value: 1, duration: 600 }, { value: 0, duration: 420, easing: "linear" }],
+    complete: () => shards.forEach((s) => s.remove()),
+  });
+
+  // the whole box takes a hit
+  anime({
+    targets: typeStage, easing: "linear",
+    translateX: [{ value: -7, duration: 40 }, { value: 7, duration: 40 }, { value: -5, duration: 40 }, { value: 4, duration: 40 }, { value: 0, duration: 60 }],
+    translateY: [{ value: 4, duration: 40 }, { value: -4, duration: 40 }, { value: 3, duration: 40 }, { value: -2, duration: 40 }, { value: 0, duration: 60 }],
+  });
+}
+
+// after the blast, the word pops back in from the centre
+function reform() {
+  renderLetters(typeIn.value || "hello!", false);
+  const fresh = [...typeOut.querySelectorAll("span")];
+  fresh.forEach((s) => (s.style.opacity = 0));
+  anime({
+    targets: fresh, opacity: [0, 1], scale: [0.3, 1], translateY: [24, 0],
+    delay: anime.stagger(45, { from: "center" }), duration: 700, easing: "easeOutBack",
+    complete: () => { exploding = false; boomBtn.disabled = false; },
+  });
+}
+
+boomBtn.addEventListener("click", () => {
+  if (exploding) return;
+  const letters = [...typeOut.querySelectorAll("span")].filter((s) => s.textContent.trim());
+  if (!letters.length) return;
+  exploding = true;
+  boomBtn.disabled = true;
+  if (reduceMotion) { reform(); return; }
+
+  // each letter gets thrown away from the centre, mostly upwards
+  const box = typeStage.getBoundingClientRect();
+  const fly = letters.map((l) => {
+    const r = l.getBoundingClientRect();
+    const dx = (r.left + r.width / 2 - (box.left + box.width / 2)) / (box.width / 2);
+    const vx = dx * 1.2 + (Math.random() - 0.5) * 0.8;
+    const vy = -(0.3 + Math.random() * 0.9);
+    const len = Math.hypot(vx, vy) || 1, dist = anime.random(90, 150);
+    return { x: (vx / len) * dist, y: (vy / len) * dist, spin: anime.random(-720, 720) };
+  });
+  const jitter = (n) => Array.from({ length: 8 }, (_, i) => ({ value: i === 7 ? 0 : anime.random(-n, n), duration: 55 }));
+
+  anime.timeline({ easing: "linear" })
+    // 1. charge-up: the letters shake, swell and glow white-hot
     .add({
       targets: letters,
-      translateX: () => anime.random(-160, 160),
-      translateY: () => anime.random(-90, 90),
-      rotate: () => anime.random(-360, 360),
-      scale: () => anime.random(5, 20) / 10,
-      duration: 600, easing: "easeOutExpo",
+      translateX: jitter(3), translateY: jitter(3),
+      scale: [{ value: 1.35, duration: 440, easing: "easeInQuad" }],
+      color: { value: "#fff3d6", duration: 440 },
     })
+    // 2. blast: letters are thrown out, spin, shrink and fall while the effects go off
     .add({
-      targets: letters, translateX: 0, translateY: 0, rotate: 0, scale: 1,
-      duration: 1200, delay: anime.stagger(50, { from: "center" }), easing: "easeOutElastic(1, .45)",
-    }, "+=400");
+      targets: letters,
+      begin: blastFx,
+      translateX: { value: (el, i) => fly[i].x, duration: 1100, easing: "easeOutCubic" },
+      translateY: [
+        { value: (el, i) => fly[i].y, duration: 480, easing: "easeOutCubic" },
+        { value: (el, i) => fly[i].y + 90, duration: 620, easing: "easeInQuad" },
+      ],
+      rotate: { value: (el, i) => fly[i].spin, duration: 1100, easing: "easeOutCubic" },
+      scale: [{ value: 1.6, duration: 110, easing: "easeOutQuad" }, { value: 0.15, duration: 990, easing: "easeInQuad" }],
+      opacity: [{ value: 1, duration: 520 }, { value: 0, duration: 580, easing: "linear" }],
+      complete: () => setTimeout(reform, 250),
+    });
 });
 
 // --- 8c. spark pad ---

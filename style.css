@@ -181,6 +181,7 @@ a { color: inherit; }
 .btn:hover { transform: translateY(-3px); }
 .btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
 .btn.small { padding: 8px 16px; font-size: .85rem; }
+.btn:disabled { opacity: .55; cursor: default; transform: none; }
 
 /* ---------- sections ---------- */
 .section { padding: 100px clamp(16px, 6vw, 80px); max-width: 1200px; margin: 0 auto; }
@@ -265,7 +266,13 @@ a { color: inherit; }
 .pop { position: absolute; pointer-events: none; font: 700 1.1rem "JetBrains Mono", monospace; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,.4); }
 
 /* type */
-.type-stage { min-height: 140px; display: grid; place-items: center; border-radius: 16px; background: var(--bg); overflow: hidden; }
+.type-stage { position: relative; min-height: 180px; display: grid; place-items: center; border-radius: 16px; background: var(--bg); overflow: hidden; }
+/* explosion pieces (main.js) */
+.debris { position: absolute; margin: -3px 0 0 -3px; border-radius: 1px; pointer-events: none; }
+.boom-flash {
+  position: absolute; inset: 0; opacity: 0; pointer-events: none;
+  background: radial-gradient(circle at center, #fff8e1 0%, #ffc65c 25%, rgba(255, 138, 61, 0) 65%);
+}
 .type-out { font-size: clamp(2rem, 5vw, 3rem); font-weight: 700; white-space: pre; }
 .type-out span { display: inline-block; }
 .type-controls { display: flex; gap: 8px; }
