@@ -1,6 +1,6 @@
 # mqz — portfolio
 
-My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [anime.js](https://animejs.com/) for Hack Club [Swirl](https://swirl.hackclub.com/).
+My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [anime.js](https://animejs.com/) for Hack Club [Swirl](https://swirl.hackclub.com/). A small [GSAP](https://gsap.com/) layer (`gsap-effects.js`) adds scroll-linked touches on top.
 
 ## Features
 1. **Animated hero**: the greeting animates in letter by letter, the photo spins in, and the tagline scrambles between words over a self-drawing squiggle
@@ -18,6 +18,7 @@ My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [a
 10. **Custom cursor** and photo tilt on hover
 11. **Hidden easter egg** (Konami code)
 12. Responsive layout and `prefers-reduced-motion` support
+13. **GSAP + ScrollTrigger**: scroll progress bar, nav drop-in, hero fade-out on scroll, staggered stat cards and skill pills, magnetic contact buttons
 
 ## Run locally
 Open `index.html` in a browser, or run:
