@@ -7,7 +7,7 @@ My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [a
 2. **Pixel-art sunset clouds**: generated with code on tiny canvases every visit, drifting slowly
 3. **Interactive dot grid**: click the sky to send a ripple out from that point (`anime.stagger` with `grid` + `from`)
 4. **Layered hills** with scroll parallax
-5. **Featured projects**: hand-picked cards with live star counts from the GitHub API
+5. **Featured projects**: hand-picked cards with live star counts from the GitHub API, each with a small looping SVG scene (`project-scenes.js`, GSAP) showing what the project does
 6. **Playground**
    - *Catch the sun*: a 20-second click game with a saved best score
    - *Type & explode*: letters bounce in as you type and blow apart on "boom"
