@@ -20,6 +20,7 @@ My personal portfolio site, built from scratch with HTML, CSS, JavaScript and [a
 12. Responsive layout and `prefers-reduced-motion` support
 13. **GSAP + ScrollTrigger**: scroll progress bar, nav drop-in, hero fade-out on scroll, staggered stat cards and skill pills, magnetic contact buttons
 14. **Liquid Glass look on Apple devices** (iPhone, iPad, Mac): frosted glass nav, link bar and buttons with rim light, a highlight that follows the pointer, and press-to-lift lenses. Add `?glass=on` to the URL to see it on other devices
+15. **Swarm rebuild** (`swarm.js`): wipes the page, then a swarm of named multiplayer-style cursors rebuilds it live, dragging out boxes with size badges and typing text with a caret. Start it from the footer button or press Alt+Shift+S (Esc to exit). Speed 1-3x, auto-scroll tour and replay, more cursors join when you scroll fast. Inspired by the Swarm Rebuild Chrome extension
 
 ## Run locally
 Open `index.html` in a browser, or run:
