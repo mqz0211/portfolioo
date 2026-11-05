@@ -443,23 +443,3 @@ html.swarm .sw-ch.sw-off { visibility: hidden !important; }
 .sw-guide .sw-badge { left: 6px; right: auto; bottom: auto; top: 4px; color: #fff; }
 .sw-caret { position: absolute; width: 2px; animation: sw-blink 1s steps(1) infinite; }
 @keyframes sw-blink { 50% { opacity: 0; } }
-
-.sw-bar {
-  position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 9999;
-  display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 16px; max-width: calc(100% - 24px);
-  background: color-mix(in srgb, var(--bg-2) 88%, transparent); color: var(--fg);
-  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-  border: 1px solid var(--line); border-radius: 999px; box-shadow: 0 10px 30px -12px rgba(0,0,0,.6);
-  font-size: .8rem;
-}
-.sw-title { font-weight: 600; margin-right: 4px; white-space: nowrap; }
-.sw-speed { display: flex; gap: 2px; }
-.sw-bar button {
-  font: inherit; color: var(--muted); background: none; border: 0; border-radius: 999px;
-  padding: 5px 11px; cursor: pointer; white-space: nowrap; transition: color .15s, background .15s;
-}
-.sw-bar button:hover { color: var(--fg); }
-.sw-bar button.on { color: var(--fg); background: color-mix(in srgb, var(--accent) 28%, transparent); }
-.sw-bar .sw-exit { color: #14121d; background: var(--accent); font-weight: 600; }
-.sw-bar .sw-exit:hover { color: #14121d; filter: brightness(1.08); }
-@media (max-width: 520px) { .sw-title { display: none; } .sw-bar { padding-left: 8px; } }
