@@ -3,7 +3,7 @@
 //  multiplayer-style cursors rebuilds it live: boxes are
 //  dragged out with a size badge, text is typed with a caret.
 //  Start: footer button, Alt+Shift+S, or ?swarm in the URL.
-//  Esc (or "Go live") returns to the real page.
+//  Esc, Alt+Shift+S again, or a click/tap returns to the real page.
 //  Plain JS, no libraries.
 // =========================================================
 (() => {
@@ -27,8 +27,8 @@
     ["footer", "box"], [".footer > span", "text"], [".swarm-btn", "box"],
   ];
 
-  const S = { active: false, done: false, speed: 1, tour: false, vel: 0 };
-  let items = [], agents = [], decors = new Set(), layer, bar, raf, lastT, lastY, lastScrollT;
+  const S = { active: false, done: false, speed: 1.5, vel: 0 };
+  let items = [], agents = [], decors = new Set(), layer, raf, lastT, lastY, lastScrollT;
   let mouse = { x: innerWidth / 2, y: innerHeight / 2 };
 
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -248,11 +248,6 @@
     if (agents.length < want) spawnAgent();
     decors.forEach((fn) => fn());
     agents.forEach((a) => stepAgent(a, dt));
-    if (S.tour && !S.done && !pending().length && !agents.some((a) => a.busy)) {
-      const before = scrollY;
-      window.scrollTo({ top: before + 220 * S.speed * dt + 0.5, behavior: "instant" });
-      if (Math.abs(scrollY - before) < 0.4 && !items.every((x) => x.done)) { /* at the bottom with leftovers: next pass picks them up */ }
-    }
     raf = requestAnimationFrame(loop);
   }
 
@@ -263,38 +258,7 @@
   }
   const onMove = (e) => { mouse = { x: e.clientX, y: e.clientY }; };
 
-  function finish() {
-    S.done = true;
-    S.tour = false;
-    bar.querySelector(".sw-tour").classList.remove("on");
-    bar.querySelector(".sw-replay").hidden = false;
-    bar.querySelector(".sw-title").textContent = "Rebuilt";
-  }
-
-  // ---------- controls ----------
-  function buildBar() {
-    bar = el$("div", "sw-bar", document.body);
-    bar.setAttribute("role", "toolbar");
-    bar.setAttribute("aria-label", "Swarm rebuild controls");
-    bar.innerHTML =
-      '<span class="sw-title">Swarm rebuild</span>' +
-      '<span class="sw-speed"><button type="button" data-s="1" class="on">1×</button><button type="button" data-s="2">2×</button><button type="button" data-s="3">3×</button></span>' +
-      '<button type="button" class="sw-tour">Tour</button>' +
-      '<button type="button" class="sw-replay" hidden>Replay</button>' +
-      '<button type="button" class="sw-exit">Go live</button>';
-    bar.addEventListener("click", (e) => {
-      const b = e.target.closest("button");
-      if (!b) return;
-      if (b.dataset.s) {
-        S.speed = +b.dataset.s;
-        bar.querySelectorAll(".sw-speed button").forEach((x) => x.classList.toggle("on", x === b));
-      } else if (b.classList.contains("sw-tour")) {
-        S.tour = !S.tour;
-        b.classList.toggle("on", S.tour);
-      } else if (b.classList.contains("sw-replay")) replay();
-      else if (b.classList.contains("sw-exit")) stop();
-    });
-  }
+  function finish() { S.done = true; }
 
   function resetItems() {
     items.forEach((it) => {
@@ -307,8 +271,6 @@
     items = collect();
     items.forEach(hide);
     S.done = false;
-    bar.querySelector(".sw-replay").hidden = true;
-    bar.querySelector(".sw-title").textContent = "Swarm rebuild";
     for (let i = 0; i < 3; i++) spawnAgent();
   }
 
@@ -320,7 +282,6 @@
     // the real page is no longer interactive-visible while we rebuild it
     document.querySelectorAll(".reveal").forEach((el) => { el.style.opacity = "1"; el.style.transform = "none"; });
     layer = el$("div", "sw-layer", document.body);
-    buildBar();
     root.classList.add("sw-fade");
     await wait(620);
     if (!S.active) return;
@@ -340,15 +301,6 @@
     if (layer) layer.innerHTML = "";
   }
 
-  function replay() {
-    clearActors();
-    resetItems();
-    window.scrollTo({ top: 0, behavior: "instant" });
-    S.tour = false;
-    bar.querySelector(".sw-tour").classList.remove("on");
-    begin();
-  }
-
   function stop() {
     if (!S.active) return;
     S.active = false;
@@ -359,9 +311,7 @@
     resetItems();
     root.classList.remove("swarm", "sw-fade");
     layer && layer.remove();
-    bar && bar.remove();
     items = [];
-    S.tour = false;
   }
 
   // ---------- entry points ----------
@@ -370,10 +320,15 @@
     if (reduce) btn.hidden = true;
     btn.addEventListener("click", start);
   }
+  document.addEventListener("click", (e) => {
+    if (!S.active) return;
+    e.preventDefault(); e.stopPropagation();
+    stop();
+  }, true);
   window.addEventListener("keydown", (e) => {
     if (e.code === "KeyS" && e.altKey && e.shiftKey) { e.preventDefault(); S.active ? stop() : start(); }
     else if (e.key === "Escape" && S.active) stop();
   });
   if (/[?&]swarm\b/.test(location.search)) window.addEventListener("load", () => setTimeout(start, 1500));
-  window.swarmRebuild = { start, stop, replay, state: S };
+  window.swarmRebuild = { start, stop, state: S };
 })();
