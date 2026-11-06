@@ -443,3 +443,24 @@ html.swarm .sw-ch.sw-off { visibility: hidden !important; }
 .sw-guide .sw-badge { left: 6px; right: auto; bottom: auto; top: 4px; color: #fff; }
 .sw-caret { position: absolute; width: 2px; animation: sw-blink 1s steps(1) infinite; }
 @keyframes sw-blink { 50% { opacity: 0; } }
+
+/* ---------- accessibility ---------- */
+.skip-link {
+  position: fixed; left: 12px; top: -60px; z-index: 200;
+  padding: 8px 16px; border-radius: 999px;
+  background: var(--accent); color: #1d1a26; font-weight: 700; text-decoration: none;
+  transition: top .2s;
+}
+.skip-link:focus-visible { top: 12px; }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+.stat .num, .toy-score b, .repo-thumb .badge { font-variant-numeric: tabular-nums; }
+.title, .contact .big, .section-title { text-wrap: balance; }
+
+@media (prefers-reduced-motion: reduce) {
+  .skip-link { transition: none; }
+}

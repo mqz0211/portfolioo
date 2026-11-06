@@ -11,6 +11,7 @@
       if (m ? m[1] === "on" : apple) document.documentElement.classList.add("liquid");
     })();
   </script>
+  <meta name="theme-color" content="#100f1a" />
   <title>mqz</title>
   <meta name="description" content="Portfolio of mqz (mqz0211), a student developer who makes CLI tools, web apps and games." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -22,6 +23,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <a class="skip-link" href="#top">Skip to content</a>
   <!-- custom cursor -->
   <div class="cursor" aria-hidden="true"></div>
   <!-- scroll progress bar (driven by GSAP ScrollTrigger) -->
@@ -51,10 +53,10 @@
       <div class="hero-inner">
         <div class="hero-head">
           <figure class="hero-photo">
-            <img src="assets/me.jpg" alt="mqz looking out at a sunset over the water" width="736" height="981" />
+            <img src="assets/me.jpg" alt="mqz looking out at a sunset over the water" width="736" height="981" fetchpriority="high" />
           </figure>
           <div class="hero-text">
-            <p class="eyebrow mono">// student dev</p>
+            <p class="eyebrow mono"><span aria-hidden="true">// </span>student dev</p>
             <h1 class="title"><span class="line">Hi! I'm <span class="hl">mqz</span></span></h1>
             <p class="tagline">
               <svg class="sun" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
@@ -129,7 +131,7 @@
         <div class="toy toy-game reveal">
           <div class="toy-head">
             <h3>Catch the Sun</h3>
-            <span class="mono toy-score">score <b class="score">0</b> · best <b class="best">0</b></span>
+            <span class="mono toy-score" aria-live="polite">score <b class="score">0</b> · best <b class="best">0</b></span>
           </div>
           <div class="game-stage">
             <div class="timer-bar"></div>
@@ -146,7 +148,7 @@
           <div class="toy-head"><h3>Type &amp; Explode</h3></div>
           <div class="type-stage"><div class="type-out" aria-live="polite"></div></div>
           <div class="type-controls">
-            <input class="type-in" type="text" maxlength="14" placeholder="Type something" aria-label="text to animate" />
+            <input class="type-in" type="text" maxlength="14" autocomplete="off" spellcheck="false" placeholder="Type something" aria-label="text to animate" />
             <button class="btn small type-boom">Explode</button>
           </div>
         </div>
@@ -175,17 +177,17 @@
 
   <footer class="footer mono">
     <span>Built by mqz for <a href="https://swirl.hackclub.com" target="_blank" rel="noopener">Hack Club Swirl</a></span>
-    <button class="swarm-btn" type="button" title="Alt+Shift+S">&#9654; watch it rebuild</button>
+    <button class="swarm-btn" type="button" title="Alt+Shift+S"><span aria-hidden="true">&#9654;</span> watch it rebuild</button>
   </footer>
 
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
-  <script src="project-scenes.js"></script>
-  <script src="main.js"></script>
-  <script src="gsap-effects.js"></script>
-  <script src="liquid-glass.js"></script>
-  <script src="swarm.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/gsap@3.15/dist/ScrollTrigger.min.js"></script>
+  <script defer src="project-scenes.js"></script>
+  <script defer src="main.js"></script>
+  <script defer src="gsap-effects.js"></script>
+  <script defer src="liquid-glass.js"></script>
+  <script defer src="swarm.js"></script>
 </body>
 </html>
