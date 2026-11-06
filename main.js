@@ -317,7 +317,7 @@ function renderProjects(live = {}) {
     return `
     <article class="repo${p.featured ? " featured" : ""}">
       <div class="repo-thumb" data-scene="${p.scene}">
-        ${stars ? `<span class="badge mono">${stars} stars</span>` : ""}
+        ${stars ? `<span class="badge mono">${stars.toLocaleString("en")} ${stars === 1 ? "star" : "stars"}</span>` : ""}
         ${(window.PROJECT_SCENES || {})[p.scene] || ""}
       </div>
       <div class="repo-body">
@@ -326,7 +326,7 @@ function renderProjects(live = {}) {
         <p>${escapeHTML(p.desc)}</p>
         <div class="tags mono">${p.tags.map((t) => `<span>${escapeHTML(t)}</span>`).join("")}</div>
         <div class="repo-buttons">
-          <a class="btn ghost" href="${url}" target="_blank" rel="noopener">GitHub</a>
+          <a class="btn ghost" href="${url}" target="_blank" rel="noopener">View on GitHub</a>
           ${info.homepage ? `<a class="btn" href="${escapeHTML(info.homepage)}" target="_blank" rel="noopener">Live demo</a>` : ""}
         </div>
       </div>
@@ -799,6 +799,7 @@ if (!reduceMotion) {
 const code = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "b", "a"];
 let pos = 0;
 window.addEventListener("keydown", (e) => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
   pos = e.key === code[pos] ? pos + 1 : (e.key === code[0] ? 1 : 0);
   if (pos === code.length) { pos = 0; confetti(); }
 });
